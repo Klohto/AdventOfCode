@@ -1,0 +1,58 @@
+# Day 2
+
+## Input
+
+<!-- livebook:{"livebook_object":"cell_input","name":"input","type":"text","value":"forward 5 down 5 forward 8 up 3 down 8 forward 2"} -->
+
+```elixir
+processed =
+  IO.gets(:input)
+  |> String.split(~r{\s}, trim: true)
+  |> Enum.chunk_every(2)
+  |> Enum.map(fn [x, y] -> {String.to_atom(x), String.to_integer(y)} end)
+```
+
+## Part 1
+
+```elixir
+processed
+|> Enum.reduce(
+  [0, 0],
+  fn {command, n}, [x, y] ->
+    case command do
+      :forward ->
+        [x + n, y]
+
+      :up ->
+        [x, y - n]
+
+      :down ->
+        [x, y + n]
+    end
+  end
+)
+|> Enum.product()
+```
+
+## Part 2
+
+```elixir
+processed
+|> Enum.reduce(
+  [0, 0, 0],
+  fn {command, n}, [x, y, aim] ->
+    case command do
+      :forward ->
+        [x + n, y + aim * n, aim]
+
+      :up ->
+        [x, y, aim - n]
+
+      :down ->
+        [x, y, aim + n]
+    end
+  end
+)
+|> Enum.take(2)
+|> Enum.product()
+```

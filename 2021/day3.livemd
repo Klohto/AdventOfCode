@@ -1,0 +1,77 @@
+# Day 3
+
+## Input
+
+<!-- livebook:{"livebook_object":"cell_input","name":"input","type":"text","value":"00100 11110 10110 10111 10101 01111 00111 11100 10000 11001 00010 01010"} -->
+
+```elixir
+processed =
+  IO.gets(:input)
+  |> String.split(~r{\s}, trim: true)
+```
+
+## Part 1
+
+```elixir
+# helpers
+ind_len = String.length(Enum.at(processed, 0))
+convert = fn data_list -> Enum.join(data_list) |> String.to_integer(2) end
+###
+
+gamma =
+  processed
+  |> Enum.reduce(
+    List.duplicate(0, ind_len),
+    fn bits, stats ->
+      bits
+      |> String.graphemes()
+      |> Enum.with_index()
+      |> Enum.map(fn {c, index} ->
+        Enum.at(stats, index) + String.to_integer(c)
+      end)
+    end
+  )
+  |> Enum.map(fn n_ones ->
+    if n_ones > div(length(processed), 2), do: 1, else: 0
+  end)
+  |> convert.()
+
+epsilon =
+  gamma
+  |> Bitwise.~~~()
+  |> Bitwise.&&&(String.duplicate("1", ind_len) |> String.to_integer(2))
+
+gamma * epsilon
+```
+
+## Part 2
+
+```elixir
+# helpers
+convert = fn data -> Enum.join(data) |> String.to_integer(2) end
+###
+
+converted_entries =
+  processed
+  |> Enum.map(fn bits ->
+    String.graphemes(bits) |> Enum.map(&String.to_integer/1)
+  end)
+
+# Expects:
+# list -> list of split converted bits eq.: [[0,1,0],[1,0,1]]
+# index -> starting index eq.: 0
+# sorter -> which value takes precendence when comparing eq.: &>/2
+b_reduce = fn list, index, sorter ->
+  Enum.group_by(list, &Enum.at(&1, index))
+  |> Enum.max_by(fn {_k, v} -> length(v) end, sorter)
+  |> elem(1)
+end
+
+slvr = fn
+  [final], _, _, _ -> convert.(final)
+  list, i, sorter, fun -> b_reduce.(list, i, sorter) |> fun.(i + 1, sorter, fun)
+end
+
+slvr.(converted_entries, 0, &>/2, slvr) * slvr.(converted_entries, 0, &<=/2, slvr)
+```
+
