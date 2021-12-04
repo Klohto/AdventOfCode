@@ -1,0 +1,70 @@
+# Day 4
+
+## Input
+
+<!-- livebook:{"livebook_object":"cell_input","name":"input","type":"text","value":"7,4,9,5,11,17,23,2,0,14,21,24,10,16,13,6,15,25,12,22,18,20,8,19,3,26,1  22 13 17 11  0  8  2 23  4 24 21  9 14 16  7  6 10  3 18  5  1 12 20 15 19   3 15  0  2 22  9 18 13 17  5 19  8  7 25 23 20 11 10 24  4 14 21 16 12  6  14 21 17 24  4 10 16 15  9 19 18  8 23 26 20 22 11 13  6  5  2  0 12  3  7"} -->
+
+```elixir
+# Livebook Input (atleast the default one) doesn't support multiline
+input = IO.gets(:input)
+
+winning_nums =
+  input
+  |> String.split(~r{\s}, trim: true)
+  |> List.first()
+  |> String.split(",")
+  |> Enum.map(&String.to_integer/1)
+
+boards =
+  input
+  |> String.split(~r{\s}, trim: true)
+  |> Enum.drop(1)
+  |> Enum.map(&String.to_integer/1)
+  |> Enum.chunk_every(5)
+  |> Enum.chunk_every(5)
+```
+
+## Part 1
+
+```elixir
+calculate_card = fn bingo_card, last_number ->
+  List.flatten(bingo_card)
+  |> Enum.reject(&(&1 == -1))
+  |> Enum.sum()
+  |> Kernel.*(last_number)
+  |> IO.inspect()
+
+  # exit after first find
+  Kernel.exit(:ok)
+end
+
+# mark all matching numbers inside boards
+mark_boards = fn boards, n ->
+  List.flatten(boards)
+  |> Enum.map(&if(&1 == n, do: -1, else: &1))
+  # convert back to 5x5 boards
+  |> Enum.chunk_every(5)
+  |> Enum.chunk_every(5)
+end
+
+check_boards = fn boards, last_n ->
+  Enum.each(boards, fn b ->
+    for i <- 0..4 do
+      # horizontal || vertical
+      if Enum.sum(Enum.at(b, i)) == -5 || Enum.sum(Enum.map(b, &Enum.at(&1, i))) == -5 do
+        calculate_card.(b, last_n)
+      end
+    end
+  end)
+
+  boards
+end
+
+Enum.reduce(winning_nums, boards, fn n, b -> mark_boards.(b, n) |> check_boards.(n) end)
+```
+
+## Part 2
+
+```elixir
+# So ugly I had to hide it
+```
