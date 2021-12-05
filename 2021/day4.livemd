@@ -6,19 +6,15 @@
 
 ```elixir
 # Livebook Input (atleast the default one) doesn't support multiline
-input = IO.gets(:input)
+[winning_nums | boards] = IO.gets(:input) |> String.split(~r{\s}, trim: true)
 
 winning_nums =
-  input
-  |> String.split(~r{\s}, trim: true)
-  |> List.first()
+  winning_nums
   |> String.split(",")
   |> Enum.map(&String.to_integer/1)
 
 boards =
-  input
-  |> String.split(~r{\s}, trim: true)
-  |> Enum.drop(1)
+  boards
   |> Enum.map(&String.to_integer/1)
   |> Enum.chunk_every(5)
   |> Enum.chunk_every(5)

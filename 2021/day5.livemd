@@ -1,0 +1,63 @@
+# Day 4
+
+## Deps & preparation
+
+```elixir
+Mix.install([
+  {:kino, "~> 0.4.0"}
+])
+
+input = Kino.Input.textarea("Please paste your input file:")
+```
+
+## Input
+
+```elixir
+coordinates =
+  Kino.Input.read(input)
+  |> String.split(["\n", ",", " -> "], trim: true)
+  |> Enum.map(&String.to_integer/1)
+  |> Enum.chunk_every(4)
+```
+
+## Part 1
+
+```elixir
+coordinates
+|> Enum.reduce(
+  [],
+  fn
+    [x, y, x1, y1], map when y == y1 ->
+      Enum.zip(x..x1, Stream.cycle([y])) ++ map
+
+    [x, y, x1, y1], map when x == x1 ->
+      Enum.zip(Stream.cycle([x]), y..y1) ++ map
+
+    _, map ->
+      map
+  end
+)
+|> Enum.frequencies()
+|> Enum.count(fn {_k, v} -> v > 1 end)
+```
+
+## Part 2
+
+```elixir
+coordinates
+|> Enum.reduce(
+  [],
+  fn
+    [x, y, x1, y1], map when y == y1 ->
+      Enum.zip(x..x1, Stream.cycle([y])) ++ map
+
+    [x, y, x1, y1], map when x == x1 ->
+      Enum.zip(Stream.cycle([x]), y..y1) ++ map
+
+    [x, y, x1, y1], map ->
+      Enum.zip(x..x1, y..y1) ++ map
+  end
+)
+|> Enum.frequencies()
+|> Enum.count(fn {_k, v} -> v > 1 end)
+```
