@@ -20,7 +20,7 @@ start_state =
   |> Enum.frequencies()
 ```
 
-## Part 1 & Part 2
+## Part 1
 
 ```elixir
 Enum.reduce(1..80, start_state, fn _, state ->
