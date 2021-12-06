@@ -1,0 +1,55 @@
+# Day 6
+
+## Deps & preparation
+
+```elixir
+Mix.install([
+  {:kino, "~> 0.4.0"}
+])
+
+input = Kino.Input.textarea("Please paste your input file:")
+```
+
+## Input
+
+```elixir
+start_state =
+  Kino.Input.read(input)
+  |> String.split([","], trim: true)
+  |> Enum.map(&String.to_integer/1)
+  |> Enum.frequencies()
+```
+
+## Part 1 & Part 2
+
+```elixir
+Enum.reduce(1..80, start_state, fn _, state ->
+  state
+  |> Enum.reduce(%{}, fn
+    {0, c}, curr_state ->
+      curr_state |> Map.update(6, c, &(c + &1)) |> Map.update(8, c, &(c + &1))
+
+    {age, c}, curr_state ->
+      curr_state |> Map.update(age - 1, c, &(c + &1))
+  end)
+end)
+|> Map.values()
+|> Enum.sum()
+```
+
+## Part 2
+
+```elixir
+Enum.reduce(1..256, start_state, fn _, state ->
+  state
+  |> Enum.reduce(%{}, fn
+    {0, c}, curr_state ->
+      curr_state |> Map.update(6, c, &(c + &1)) |> Map.update(8, c, &(c + &1))
+
+    {age, c}, curr_state ->
+      curr_state |> Map.update(age - 1, c, &(c + &1))
+  end)
+end)
+|> Map.values()
+|> Enum.sum()
+```
