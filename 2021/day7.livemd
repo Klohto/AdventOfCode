@@ -1,0 +1,55 @@
+# Day 7
+
+## Deps & preparation
+
+```elixir
+Mix.install([
+  {:kino, "~> 0.4.0"}
+])
+
+input = Kino.Input.textarea("Please paste your input file:")
+```
+
+## Input
+
+```elixir
+crabs =
+  Kino.Input.read(input)
+  |> String.split([","], trim: true)
+  |> Enum.map(&String.to_integer/1)
+```
+
+## Part 1
+
+```elixir
+# fuel cost is always 1
+fuel_calc = fn positions, target_pos ->
+  Enum.map(positions, fn position ->
+    abs(position - target_pos)
+  end)
+  |> Enum.sum()
+end
+
+Enum.map(Enum.min(crabs)..Enum.max(crabs), fn target ->
+  fuel_calc.(crabs, target)
+end)
+|> Enum.min()
+```
+
+## Part 2
+
+```elixir
+# fuel cost grows by step count (1 is 1, 2 is 2)
+fuel_calc = fn positions, target_pos ->
+  Enum.map(positions, fn position ->
+    x = abs(position - target_pos)
+    div(x * (x + 1), 2)
+  end)
+  |> Enum.sum()
+end
+
+Enum.map(Enum.min(crabs)..Enum.max(crabs), fn target ->
+  fuel_calc.(crabs, target)
+end)
+|> Enum.min()
+```
