@@ -1,0 +1,85 @@
+# Day 7
+
+## Deps & preparation
+
+```elixir
+Mix.install([
+  {:kino, "~> 0.4.0"}
+])
+
+input = Kino.Input.textarea("Please paste your input file:")
+```
+
+## Input
+
+```elixir
+# [ [[first_part], [second]], [[first_part], [second]] ]
+lines =
+  Kino.Input.read(input)
+  |> String.split(["\n", "|"], trim: true)
+  |> Enum.map(&String.split/1)
+  |> Enum.chunk_every(2)
+```
+
+## Part 1
+
+```elixir
+digit_lines = Enum.map(lines, &Enum.at(&1, 1))
+
+digit_lines
+|> Enum.map(fn digits ->
+  digits
+  |> Enum.group_by(&String.length/1)
+  |> Map.take([2, 3, 4, 7])
+  |> Enum.count()
+end)
+|> Enum.sum()
+```
+
+## Part 2
+
+```elixir
+# 1,4,7,8 -> 9,3 -> 5,0 -> 2,6
+create_map = fn rosseta ->
+  %{2 => [one], 3 => [seven], 4 => [four], 5 => p_235, 6 => p_069, 7 => [eight]} =
+    rosseta
+    |> Enum.map(&String.to_charlist/1)
+    |> Enum.map(&Enum.sort/1)
+    |> Enum.group_by(&length/1)
+
+  nine = Enum.find(p_069, fn d -> length(d -- four) == 2 end)
+  three = Enum.find(p_235, fn d -> length(d -- one) == 3 end)
+  five = Enum.find(p_235 -- [three], fn d -> length(nine -- d) == 1 end)
+  zero = Enum.find(p_069 -- [nine], fn d -> length(d -- one) == 4 end)
+  two = (p_235 -- [three, five]) |> List.flatten()
+  six = (p_069 -- [nine, zero]) |> List.flatten()
+
+  %{
+    zero => 0,
+    one => 1,
+    two => 2,
+    three => 3,
+    four => 4,
+    five => 5,
+    six => 6,
+    seven => 7,
+    eight => 8,
+    nine => 9
+  }
+end
+
+decode = fn map, digits ->
+  digits
+  |> Enum.map(&String.to_charlist/1)
+  |> Enum.map(&Enum.sort/1)
+  |> Enum.map(&Map.get(map, &1))
+  |> Integer.undigits()
+end
+
+# [ [[first_part], [second]], [[first_part], [second]] ]
+lines
+|> Enum.map(fn line ->
+  create_map.(Enum.at(line, 0)) |> decode.(Enum.at(line, 1))
+end)
+|> Enum.sum()
+```
