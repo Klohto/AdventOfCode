@@ -1,0 +1,51 @@
+# Day 9
+
+## Deps & preparation
+
+```elixir
+Mix.install([
+  {:kino, "~> 0.4.0"}
+])
+
+input = Kino.Input.textarea("Please paste your input file:")
+```
+
+## Input
+
+```elixir
+heightmap =
+  Kino.Input.read(input)
+  |> String.split(~r{\.*|\s}, trim: true)
+  |> Enum.map(&String.to_integer/1)
+
+# |> Enum.chunk_every(10)
+# |> Enum.chunk_every(100)
+```
+
+## Part 1
+
+```elixir
+lows =
+  heightmap
+  |> Enum.with_index()
+  |> Enum.reduce([], fn {x, index}, acc ->
+    #     -100
+    # -1    x   +1
+    #     +100
+    up = Enum.at(heightmap, index - 100)
+    down = Enum.at(heightmap, index + 100)
+    left = Enum.at(heightmap, index - 1)
+    right = Enum.at(heightmap, index + 1)
+
+    if x < Enum.min([up, down, left, right]), do: [x | acc], else: acc
+  end)
+
+Enum.count(lows) + Enum.sum(lows)
+```
+
+## Part 2
+
+```elixir
+# Utilize group_by and group by basil size?
+# prob bullshit now that I think about it
+```
